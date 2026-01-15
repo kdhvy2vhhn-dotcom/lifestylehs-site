@@ -1,7 +1,6 @@
-
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Card,
@@ -41,6 +40,8 @@ import {
   Quote,
   Search,
   Grid2X2,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 
 type IconType = any;
@@ -59,8 +60,12 @@ function SectionTitle({
   return (
     <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
       <div className="space-y-2">
-        {kicker ? <div className="text-xs text-neutral-600">{kicker}</div> : null}
-        <h2 className="text-2xl font-semibold tracking-tight md:text-3xl">
+        {kicker ? (
+          <div className="text-xs font-medium tracking-wide text-neutral-500">
+            {kicker}
+          </div>
+        ) : null}
+        <h2 className="text-2xl font-semibold tracking-tight md:text-3xl text-neutral-900">
           {title}
         </h2>
         {desc ? <p className="max-w-2xl text-neutral-600">{desc}</p> : null}
@@ -74,26 +79,52 @@ function Gallery({ images = [], label = "" }: { images: string[]; label?: string
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {images.map((src, i) => (
-        <div key={`${label}-${i}`} className="overflow-hidden rounded-3xl border bg-white">
-          <img src={src} alt={`${label} photo ${i + 1}`} className="h-52 w-full object-cover" loading="lazy" />
+        <div
+          key={`${label}-${i}`}
+          className="overflow-hidden rounded-3xl border border-black/10 bg-white shadow-sm"
+        >
+          <img
+            src={src}
+            alt={`${label} photo ${i + 1}`}
+            className="h-52 w-full object-cover"
+            loading="lazy"
+          />
         </div>
       ))}
     </div>
   );
 }
 
-function BeforeAfter({ beforeSrc, afterSrc, label = "" }: { beforeSrc: string; afterSrc: string; label?: string }) {
+function BeforeAfter({
+  beforeSrc,
+  afterSrc,
+  label = "",
+}: {
+  beforeSrc: string;
+  afterSrc: string;
+  label?: string;
+}) {
   const [mode, setMode] = useState<"before" | "after">("after");
   const src = mode === "before" ? beforeSrc : afterSrc;
   return (
-    <div className="rounded-3xl border overflow-hidden">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b bg-white/80 px-4 py-3">
-        <div className="text-sm font-medium">Before / After</div>
+    <div className="rounded-3xl border border-black/10 overflow-hidden bg-white shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-black/10 bg-white/90 px-4 py-3">
+        <div className="text-sm font-semibold text-neutral-900">Before / After</div>
         <div className="flex gap-2">
-          <Button type="button" variant={mode === "before" ? "default" : "outline"} className="rounded-2xl" onClick={() => setMode("before")}>
+          <Button
+            type="button"
+            variant={mode === "before" ? "default" : "outline"}
+            className="rounded-2xl"
+            onClick={() => setMode("before")}
+          >
             Before
           </Button>
-          <Button type="button" variant={mode === "after" ? "default" : "outline"} className="rounded-2xl" onClick={() => setMode("after")}>
+          <Button
+            type="button"
+            variant={mode === "after" ? "default" : "outline"}
+            className="rounded-2xl"
+            onClick={() => setMode("after")}
+          >
             After
           </Button>
         </div>
@@ -122,24 +153,10 @@ export default function Page() {
       },
       tagline: "Framing, foundations, siding, and custom builds—done right.",
       serviceAreas: ["Bonnyville", "Lakeland County", "Cold Lake", "St. Paul", "Surrounding area"],
-
       socials: {
         facebook: "https://www.facebook.com/", // replace with your real page URL
       },
-
-      // ✅ Control what shows on the homepage (to keep it clean)
-      featuredServiceIds: [
-        "framing",
-        "foundations",
-        "siding",
-        "shops",
-        "polebarns",
-        "saunas",
-        "sunrooms",
-        "gc",
-      ],
-
-      // ✅ Add as many services as you want here (front page won't clutter)
+      featuredServiceIds: ["framing", "foundations", "siding", "shops", "polebarns", "saunas", "sunrooms", "gc"],
       services: [
         {
           id: "framing",
@@ -149,11 +166,11 @@ export default function Page() {
           icon: Building2 as IconType,
           tags: ["Residential", "Commercial"],
           bullets: ["New construction", "Additions", "Structural framing"],
-          gallery: ["/images/framing-1.jpg","/images/framing-2.jpg","/images/framing-3.jpg"],
+          gallery: ["/images/framing-1.jpg", "/images/framing-2.jpg", "/images/framing-3.jpg"],
           detail: {
             heading: "Framing you can trust",
             copy: "We build straight, square, and strong. Whether it’s a new home, shop, commercial space, or an addition—our framing work is planned for efficiency and built to last.",
-            list: ["Wall & roof systems","Beam installs & structural tie-ins","Garage and shop packages","Site-ready scheduling & coordination"],
+            list: ["Wall & roof systems", "Beam installs & structural tie-ins", "Garage and shop packages", "Site-ready scheduling & coordination"],
           },
         },
         {
@@ -164,11 +181,11 @@ export default function Page() {
           icon: Layers as IconType,
           tags: ["Foundations"],
           bullets: ["Formwork", "Coordination", "Site-ready prep"],
-          gallery: ["/images/foundations-1.jpg","/images/foundations-2.jpg","/images/foundations-3.jpg"],
+          gallery: ["/images/foundations-1.jpg", "/images/foundations-2.jpg", "/images/foundations-3.jpg"],
           detail: {
             heading: "A strong start",
             copy: "Good builds start below grade. We help with layout, forming coordination, and making sure the foundation work is ready for the next stage—no surprises.",
-            list: ["Footings and form coordination","Garage pads & additions","Prep for framing start","Moisture/grade considerations"],
+            list: ["Footings and form coordination", "Garage pads & additions", "Prep for framing start", "Moisture/grade considerations"],
           },
         },
         {
@@ -179,14 +196,13 @@ export default function Page() {
           icon: ShieldCheck as IconType,
           tags: ["Exteriors"],
           bullets: ["Vinyl / fiber-cement", "Trim & flashings", "Repairs"],
-          gallery: ["/images/siding-1.jpg","/images/siding-2.jpg","/images/siding-3.jpg"],
+          gallery: ["/images/siding-1.jpg", "/images/siding-2.jpg", "/images/siding-3.jpg"],
           detail: {
             heading: "Exteriors that hold up",
             copy: "Clean lines, tight details, and proper weatherproofing. We install siding and exterior trims with the goal of looking great—and staying that way.",
-            list: ["Siding installs & upgrades","Corners, trims, soffit/fascia","Flashing details","Repairs and replacements"],
+            list: ["Siding installs & upgrades", "Corners, trims, soffit/fascia", "Flashing details", "Repairs and replacements"],
           },
         },
-
         {
           id: "shops",
           category: "Outbuildings",
@@ -195,11 +211,11 @@ export default function Page() {
           icon: Warehouse as IconType,
           tags: ["Outbuildings"],
           bullets: ["New shop builds", "Additions", "Build coordination"],
-          gallery: ["/images/shops-1.jpg","/images/shops-2.jpg","/images/shops-3.jpg"],
+          gallery: ["/images/shops-1.jpg", "/images/shops-2.jpg", "/images/shops-3.jpg"],
           detail: {
             heading: "Shops built to work",
             copy: "From smaller backyard shops to larger workspaces—built to suit your needs, layout, and timeline.",
-            list: ["Layout and planning support","Foundation-to-frame coordination","Open spans and structural planning","Exterior finish options"],
+            list: ["Layout and planning support", "Foundation-to-frame coordination", "Open spans and structural planning", "Exterior finish options"],
           },
         },
         {
@@ -210,14 +226,13 @@ export default function Page() {
           icon: TentTree as IconType,
           tags: ["Agricultural"],
           bullets: ["Pole barn structures", "Storage & equipment", "Fast builds"],
-          gallery: ["/images/polebarns-1.jpg","/images/polebarns-2.jpg","/images/polebarns-3.jpg"],
+          gallery: ["/images/polebarns-1.jpg", "/images/polebarns-2.jpg", "/images/polebarns-3.jpg"],
           detail: {
             heading: "Pole barns & storage",
             copy: "Pole barn construction that’s straightforward, efficient, and built with the right details for wind and snow load.",
-            list: ["Agricultural and equipment storage","Simple, strong structures","Scheduling and trade coordination","Exterior options: steel, siding, trim"],
+            list: ["Agricultural and equipment storage", "Simple, strong structures", "Scheduling and trade coordination", "Exterior options: steel, siding, trim"],
           },
         },
-
         {
           id: "sunrooms",
           category: "Custom builds",
@@ -226,11 +241,11 @@ export default function Page() {
           icon: Sun as IconType,
           tags: ["Additions"],
           bullets: ["Add-ons & conversions", "Insulated builds", "Finish carpentry"],
-          gallery: ["/images/sunrooms-1.jpg","/images/sunrooms-2.jpg","/images/sunrooms-3.jpg"],
+          gallery: ["/images/sunrooms-1.jpg", "/images/sunrooms-2.jpg", "/images/sunrooms-3.jpg"],
           detail: {
             heading: "Bring the outside in",
             copy: "Sunrooms are a high-impact upgrade—more light, more comfort, more usable months. We build them to match your home and handle Alberta weather.",
-            list: ["New sunrooms & additions","Insulated wall/roof options","Finish carpentry and trim","Integration with existing structure"],
+            list: ["New sunrooms & additions", "Insulated wall/roof options", "Finish carpentry and trim", "Integration with existing structure"],
           },
         },
         {
@@ -241,11 +256,11 @@ export default function Page() {
           icon: Trees as IconType,
           tags: ["Wellness"],
           bullets: ["Design to build", "Moisture control", "Interior finishing"],
-          gallery: ["/images/saunas-1.jpg","/images/saunas-2.jpg","/images/saunas-3.jpg"],
+          gallery: ["/images/saunas-1.jpg", "/images/saunas-2.jpg", "/images/saunas-3.jpg"],
           detail: {
             heading: "Sauna",
             copy: "A proper sauna is more than heat—it’s airflow, materials, and moisture control. We can build to your layout and finish style, including cedar interiors and lighting details.",
-            list: ["Custom layout to fit your space","Ventilation & moisture control","Cedar/wood interior finishing","Door, bench, and lighting options"],
+            list: ["Custom layout to fit your space", "Ventilation & moisture control", "Cedar/wood interior finishing", "Door, bench, and lighting options"],
           },
           benefits: {
             heading: "Sauna benefits",
@@ -261,7 +276,6 @@ export default function Page() {
             note: "If you have medical conditions (heart disease, uncontrolled blood pressure, pregnancy, etc.), check with your doctor before starting regular sauna use.",
           },
         },
-
         {
           id: "gc",
           category: "Project management",
@@ -270,15 +284,14 @@ export default function Page() {
           icon: Hammer as IconType,
           tags: ["Project Management"],
           bullets: ["Project management", "Trade coordination", "Quality control"],
-          gallery: ["/images/gc-1.jpg","/images/gc-2.jpg","/images/gc-3.jpg"],
+          gallery: ["/images/gc-1.jpg", "/images/gc-2.jpg", "/images/gc-3.jpg"],
           detail: {
             heading: "One point of contact",
             copy: "We can run your build or renovation as the general contractor—keeping the trades aligned, schedules tight, and quality consistent.",
-            list: ["Scope planning & budgeting","Trade scheduling & coordination","Material planning","Site checks & final walkthrough"],
+            list: ["Scope planning & budgeting", "Trade scheduling & coordination", "Material planning", "Site checks & final walkthrough"],
           },
         },
       ],
-
       projects: [
         {
           id: "proj-1",
@@ -311,17 +324,76 @@ export default function Page() {
           beforeAfter: { before: "/images/project-3-before.jpg", after: "/images/project-3-after.jpg" },
         },
       ],
-
       testimonials: [
         { id: "t-1", name: "Local homeowner", location: "Bonnyville", text: "Great communication and solid workmanship. The crew was on time, clean, and the framing turned out perfect." },
         { id: "t-2", name: "Shop owner", location: "Lakeland County", text: "Professional start to finish. They kept the schedule tight and the quality was excellent." },
         { id: "t-3", name: "Renovation client", location: "Cold Lake area", text: "Very detail-oriented—especially on the exterior finishing. Would hire again." },
       ],
-
       mapEmbedUrl: "https://www.google.com/maps?q=Bonnyville,+AB+T9N+2P4&output=embed",
     }),
     []
   );
+
+  // ---------------------------
+  // Construction theme colors (in-page)
+  // ---------------------------
+  const THEME = {
+    charcoal: "#0F172A", // deep slate
+    steel: "#111827", // near-black
+    safety: "#FBBF24", // safety yellow
+    light: "#F8FAFC", // near-white
+    panel: "rgba(255,255,255,0.92)",
+  };
+
+  // ---------------------------
+  // Sound on load (with browser restrictions)
+  // Put file at: public/sounds/saw.mp3
+  // ---------------------------
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [soundTried, setSoundTried] = useState(false);
+
+  const playSound = async () => {
+    if (!soundEnabled) return;
+    if (!audioRef.current) return;
+    try {
+      audioRef.current.currentTime = 0;
+      audioRef.current.volume = 0.35;
+      await audioRef.current.play();
+    } catch {
+      // Autoplay blocked until user interaction
+    }
+  };
+
+  useEffect(() => {
+    // try once on mount
+    if (!soundTried) {
+      setSoundTried(true);
+      playSound();
+    }
+
+    // if blocked, play on first user interaction
+    const onFirstUserAction = () => {
+      playSound();
+      window.removeEventListener("pointerdown", onFirstUserAction);
+      window.removeEventListener("keydown", onFirstUserAction);
+      window.removeEventListener("wheel", onFirstUserAction);
+      window.removeEventListener("touchstart", onFirstUserAction);
+    };
+
+    window.addEventListener("pointerdown", onFirstUserAction, { passive: true });
+    window.addEventListener("keydown", onFirstUserAction);
+    window.addEventListener("wheel", onFirstUserAction, { passive: true });
+    window.addEventListener("touchstart", onFirstUserAction, { passive: true });
+
+    return () => {
+      window.removeEventListener("pointerdown", onFirstUserAction);
+      window.removeEventListener("keydown", onFirstUserAction);
+      window.removeEventListener("wheel", onFirstUserAction);
+      window.removeEventListener("touchstart", onFirstUserAction);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [soundEnabled]);
 
   const [form, setForm] = useState({ name: "", phone: "", details: "" });
   const [openService, setOpenService] = useState<any>(null);
@@ -387,17 +459,34 @@ export default function Page() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-black">
+    <div
+      className="min-h-screen text-neutral-900"
+      style={{
+        background:
+          "linear-gradient(180deg, rgba(15,23,42,0.04) 0%, rgba(248,250,252,1) 24%, rgba(248,250,252,1) 100%)",
+      }}
+    >
+      {/* hidden audio element */}
+      <audio ref={audioRef} src="/sounds/saw.mp3" preload="auto" />
+
       {/* Top bar */}
-      <div className="border-b bg-white/85 backdrop-blur sticky top-0 z-50">
+      <div className="border-b border-black/10 bg-white/80 backdrop-blur sticky top-0 z-50">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-3">
-            <div className="grid h-10 w-10 place-items-center rounded-2xl border border-black/15 overflow-hidden bg-white">
-              <img src={CONTENT.brand.logo} alt="Lifestyle logo" className="h-10 w-10 object-cover" />
+          <div className="flex items-center gap-3 min-w-0">
+            {/* FIXED: wider logo container + object-contain so it can't crop */}
+            <div className="h-11 w-28 sm:w-32 rounded-2xl border border-black/10 overflow-hidden bg-white shadow-sm shrink-0">
+              <img
+                src={CONTENT.brand.logo}
+                alt="Lifestyle logo"
+                className="h-full w-full object-contain p-1"
+              />
             </div>
-            <div>
-              <div className="text-sm font-semibold leading-tight">{CONTENT.name}</div>
-              <div className="text-xs text-neutral-600 leading-tight">
+
+            <div className="min-w-0">
+              <div className="text-sm sm:text-base font-semibold leading-tight truncate">
+                {CONTENT.name}
+              </div>
+              <div className="text-xs text-neutral-600 leading-tight truncate">
                 {CONTENT.contact.locationLine1} • {CONTENT.contact.locationLine2}
               </div>
             </div>
@@ -416,9 +505,25 @@ export default function Page() {
             <Button asChild variant="outline" className="rounded-2xl">
               <a href="#contact">Contact</a>
             </Button>
-            <Button variant="outline" className="rounded-2xl" onClick={() => setOpenAllServices(true)}>
+
+            <Button
+              variant="outline"
+              className="rounded-2xl"
+              onClick={() => setOpenAllServices(true)}
+            >
               <Grid2X2 className="h-4 w-4" /> All services
             </Button>
+
+            <Button
+              variant="outline"
+              className="rounded-2xl"
+              onClick={() => setSoundEnabled((s) => !s)}
+              title="Toggle sound"
+            >
+              {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+              Sound
+            </Button>
+
             {CONTENT.socials.facebook ? (
               <Button asChild variant="outline" className="rounded-2xl">
                 <a href={CONTENT.socials.facebook} target="_blank" rel="noreferrer">
@@ -426,7 +531,13 @@ export default function Page() {
                 </a>
               </Button>
             ) : null}
-            <Button asChild className="rounded-2xl">
+
+            {/* Construction accent button */}
+            <Button
+              asChild
+              className="rounded-2xl text-black"
+              style={{ backgroundColor: THEME.safety }}
+            >
               <a href={`tel:${CONTENT.contact.phoneTel}`}>
                 <Phone className="h-4 w-4" /> Call
               </a>
@@ -434,22 +545,37 @@ export default function Page() {
           </div>
 
           <div className="flex md:hidden items-center gap-2">
-            <Button size="sm" variant="outline" className="rounded-2xl" onClick={() => setOpenAllServices(true)}>
+            <Button
+              size="sm"
+              variant="outline"
+              className="rounded-2xl"
+              onClick={() => setOpenAllServices(true)}
+            >
               <Grid2X2 className="h-4 w-4" />
             </Button>
-            {CONTENT.socials.facebook ? (
-              <Button asChild size="sm" variant="outline" className="rounded-2xl">
-                <a href={CONTENT.socials.facebook} target="_blank" rel="noreferrer">
-                  <Facebook className="h-4 w-4" />
-                </a>
-              </Button>
-            ) : null}
+
+            <Button
+              size="sm"
+              variant="outline"
+              className="rounded-2xl"
+              onClick={() => setSoundEnabled((s) => !s)}
+              title="Toggle sound"
+            >
+              {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+            </Button>
+
             <Button asChild size="sm" variant="outline" className="rounded-2xl">
               <a href={`tel:${CONTENT.contact.phoneTel}`}>
                 <Phone className="h-4 w-4" />
               </a>
             </Button>
-            <Button asChild size="sm" className="rounded-2xl">
+
+            <Button
+              asChild
+              size="sm"
+              className="rounded-2xl text-black"
+              style={{ backgroundColor: THEME.safety }}
+            >
               <a href="#contact">Quote</a>
             </Button>
           </div>
@@ -457,46 +583,83 @@ export default function Page() {
       </div>
 
       {/* Hero */}
-      <section className="relative overflow-hidden border-b">
-        <div className="mx-auto max-w-6xl px-4 py-10 md:py-14">
+      <section className="relative overflow-hidden border-b border-black/10">
+        {/* subtle industrial stripe accent */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(15,23,42,0.06) 0%, rgba(251,191,36,0.08) 45%, rgba(248,250,252,1) 100%)",
+          }}
+        />
+        <div className="relative mx-auto max-w-6xl px-4 py-10 md:py-14">
           <div className="grid gap-10 md:grid-cols-2">
-            <motion.div initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.35 }} className="relative">
-              <motion.p variants={fadeUp} custom={0} className="inline-flex items-center gap-2 rounded-full border border-black/15 px-3 py-1 text-xs text-neutral-700">
+            <motion.div
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, amount: 0.35 }}
+              className="relative"
+            >
+              <motion.p
+                variants={fadeUp}
+                custom={0}
+                className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/70 px-3 py-1 text-xs font-medium text-neutral-700 shadow-sm"
+              >
                 <MapPin className="h-3.5 w-3.5" />
                 Serving {CONTENT.serviceAreas.join(" • ")}
               </motion.p>
 
-              <motion.h1 variants={fadeUp} custom={1} className="mt-5 text-4xl font-semibold tracking-tight md:text-5xl">
-                Build with confidence.
-                <span className="block text-neutral-600">Framing, foundations, siding, and custom spaces.</span>
+              <motion.h1
+                variants={fadeUp}
+                custom={1}
+                className="mt-5 text-4xl font-semibold tracking-tight md:text-5xl text-neutral-900"
+              >
+                Built straight. Built strong.
+                <span className="block text-neutral-700">
+                  Framing, foundations, siding, and custom spaces.
+                </span>
               </motion.h1>
 
-              <motion.p variants={fadeUp} custom={2} className="mt-5 max-w-prose text-base leading-relaxed text-neutral-600">
+              <motion.p
+                variants={fadeUp}
+                custom={2}
+                className="mt-5 max-w-prose text-base leading-relaxed text-neutral-700"
+              >
                 {CONTENT.tagline} We’re a local Bonnyville team focused on clear communication, clean workmanship, and reliable timelines.
               </motion.p>
 
               <motion.div variants={fadeUp} custom={3} className="mt-7 flex flex-wrap items-center gap-3">
-                <Button asChild className="rounded-2xl">
+                <Button
+                  asChild
+                  className="rounded-2xl text-black"
+                  style={{ backgroundColor: THEME.safety }}
+                >
                   <a href="#services">
                     View Services <ArrowRight className="h-4 w-4" />
                   </a>
                 </Button>
+
                 <Button variant="outline" className="rounded-2xl" onClick={() => setOpenAllServices(true)}>
                   <Grid2X2 className="h-4 w-4" /> All services
                 </Button>
+
                 <Button asChild variant="outline" className="rounded-2xl">
                   <a href={`tel:${CONTENT.contact.phoneTel}`}>
                     <Phone className="h-4 w-4" /> {CONTENT.contact.phoneDisplay}
                   </a>
                 </Button>
+
                 <Button asChild variant="outline" className="rounded-2xl">
                   <a href={`mailto:${CONTENT.contact.email}`}>Email</a>
                 </Button>
               </motion.div>
 
-              <motion.div variants={fadeUp} custom={4} className="mt-8 flex flex-wrap gap-3 text-sm text-neutral-700">
+              <motion.div variants={fadeUp} custom={4} className="mt-8 flex flex-wrap gap-3 text-sm">
                 {["Free estimates", "Licensed trades", "Residential + commercial"].map((t) => (
-                  <span key={t} className="inline-flex items-center gap-2 rounded-2xl border border-black/15 px-3 py-2">
+                  <span
+                    key={t}
+                    className="inline-flex items-center gap-2 rounded-2xl border border-black/10 bg-white/70 px-3 py-2 text-neutral-800 shadow-sm"
+                  >
                     <Check className="h-4 w-4" /> {t}
                   </span>
                 ))}
@@ -508,7 +671,7 @@ export default function Page() {
                     key={s.id}
                     type="button"
                     onClick={() => setOpenService(s)}
-                    className="inline-flex items-center gap-2 rounded-2xl border border-black/15 px-3 py-2 text-sm text-neutral-700 hover:bg-black/5 transition"
+                    className="inline-flex items-center gap-2 rounded-2xl border border-black/10 bg-white/70 px-3 py-2 text-sm text-neutral-800 hover:bg-white transition shadow-sm"
                   >
                     <ImageIcon className="h-4 w-4" /> {s.id === "saunas" ? "Sauna benefits" : s.title}
                   </button>
@@ -517,12 +680,16 @@ export default function Page() {
             </motion.div>
 
             <motion.div initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.35 }} className="relative">
-              <motion.div variants={fadeUp} custom={1} className="rounded-3xl border border-black/15 overflow-hidden">
-                <img src={CONTENT.brand.heroCollage} alt="Lifestyle Homes & Services collage" className="h-[360px] w-full object-cover md:h-[420px]" />
+              <motion.div variants={fadeUp} custom={1} className="rounded-3xl border border-black/10 overflow-hidden shadow-sm bg-white">
+                <img
+                  src={CONTENT.brand.heroCollage}
+                  alt="Lifestyle Homes & Services collage"
+                  className="h-[360px] w-full object-cover md:h-[420px]"
+                />
               </motion.div>
 
               <motion.div variants={fadeUp} custom={2} className="mt-4">
-                <Card className="rounded-3xl shadow-sm">
+                <Card className="rounded-3xl shadow-sm border-black/10 bg-white/90">
                   <CardHeader>
                     <CardTitle className="text-xl">Quick Quote</CardTitle>
                     <CardDescription>Tell us what you’re building. We’ll get back to you fast.</CardDescription>
@@ -548,7 +715,11 @@ export default function Page() {
                       />
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      <Button asChild className="rounded-2xl">
+                      <Button
+                        asChild
+                        className="rounded-2xl text-black"
+                        style={{ backgroundColor: THEME.safety }}
+                      >
                         <a href={mailto}>Email this request</a>
                       </Button>
                       <Button asChild variant="outline" className="rounded-2xl">
@@ -558,7 +729,8 @@ export default function Page() {
                       </Button>
                     </div>
                     <p className="text-xs text-neutral-600">
-                      Easy updates: add services inside <span className="font-medium">CONTENT.services</span> and choose homepage ones in <span className="font-medium">featuredServiceIds</span>.
+                      Easy updates: add services inside <span className="font-medium">CONTENT.services</span> and choose homepage ones in{" "}
+                      <span className="font-medium">featuredServiceIds</span>.
                     </p>
                   </CardContent>
                 </Card>
@@ -568,8 +740,8 @@ export default function Page() {
         </div>
       </section>
 
-      {/* Services (Grouped, clean) */}
-      <section id="services" className="border-b">
+      {/* Services */}
+      <section id="services" className="border-b border-black/10 bg-white">
         <div className="mx-auto max-w-6xl px-4 py-14">
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.25 }}>
             <SectionTitle
@@ -585,7 +757,6 @@ export default function Page() {
 
             <div className="mt-8 space-y-10">
               {(() => {
-                // Group featured services by category (order matters)
                 const order = ["Core construction", "Outbuildings", "Custom builds", "Project management", "Exteriors", "Other"];
                 const grouped: Record<string, any[]> = {};
                 for (const s of featuredServices as any[]) {
@@ -598,7 +769,7 @@ export default function Page() {
                   <div key={cat} className="space-y-4">
                     <div className="flex items-center justify-between gap-3">
                       <div>
-                        <div className="text-sm font-semibold">{cat}</div>
+                        <div className="text-sm font-semibold text-neutral-900">{cat}</div>
                         <div className="mt-1 text-sm text-neutral-600">
                           {cat === "Core construction"
                             ? "Structure-first work: framing and foundations."
@@ -624,18 +795,21 @@ export default function Page() {
                         return (
                           <motion.div key={s.id} variants={fadeUp} custom={i}>
                             <button type="button" onClick={() => setOpenService(s)} className="block w-full text-left">
-                              <Card className="h-full rounded-3xl hover:shadow-sm transition">
+                              <Card className="h-full rounded-3xl hover:shadow-md transition border-black/10 bg-white">
                                 <CardHeader>
                                   <div className="flex items-start gap-3">
-                                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-black/15">
-                                      <Icon className="h-5 w-5" />
+                                    <div
+                                      className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-black/10"
+                                      style={{ backgroundColor: "rgba(251,191,36,0.18)" }}
+                                    >
+                                      <Icon className="h-5 w-5 text-neutral-900" />
                                     </div>
                                     <div>
                                       <CardTitle className="text-base">{s.title}</CardTitle>
                                       <CardDescription className="mt-1">{s.short}</CardDescription>
                                       <div className="mt-3 flex flex-wrap gap-2">
                                         {(s.tags || []).map((t: string) => (
-                                          <Badge key={t} className="rounded-2xl">
+                                          <Badge key={t} className="rounded-2xl border border-black/10 bg-neutral-50 text-neutral-800">
                                             {t}
                                           </Badge>
                                         ))}
@@ -653,7 +827,7 @@ export default function Page() {
                                     ))}
                                   </ul>
                                   <div className="mt-4 inline-flex items-center text-sm">
-                                    <span className="text-neutral-600">View photos & details</span>
+                                    <span className="text-neutral-700 font-medium">View photos & details</span>
                                     <ArrowRight className="ml-2 h-4 w-4" />
                                   </div>
                                 </CardContent>
@@ -668,14 +842,16 @@ export default function Page() {
               })()}
             </div>
 
-            <div className="mt-10 rounded-3xl border border-black/15 p-4 text-sm text-neutral-700 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div className="mt-10 rounded-3xl border border-black/10 p-4 text-sm text-neutral-800 bg-white shadow-sm flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div>
-                <div className="font-medium">Need something specific?</div>
-                <div className="text-neutral-600">
-                  Open “All services” and search by keyword (ex: “pole”, “shop”, “sauna”).
-                </div>
+                <div className="font-semibold">Need something specific?</div>
+                <div className="text-neutral-600">Open “All services” and search by keyword (ex: “pole”, “shop”, “sauna”).</div>
               </div>
-              <Button className="rounded-2xl" onClick={() => setOpenAllServices(true)}>
+              <Button
+                className="rounded-2xl text-black"
+                style={{ backgroundColor: THEME.safety }}
+                onClick={() => setOpenAllServices(true)}
+              >
                 <Search className="h-4 w-4" /> Search all services
               </Button>
             </div>
@@ -683,14 +859,15 @@ export default function Page() {
         </div>
       </section>
 
-<section id="projects" className="border-b">
+      {/* Projects */}
+      <section id="projects" className="border-b border-black/10" style={{ backgroundColor: THEME.light }}>
         <div className="mx-auto max-w-6xl px-4 py-14">
           <SectionTitle kicker="Portfolio" title="Recent projects" desc="Click any project to open a larger gallery + before/after." />
           <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {CONTENT.projects.map((p: any, i: number) => (
               <motion.div key={p.id} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.25 }} variants={fadeUp} custom={i}>
                 <button type="button" onClick={() => setOpenProject(p)} className="block w-full text-left">
-                  <Card className="h-full overflow-hidden rounded-3xl hover:shadow-sm transition">
+                  <Card className="h-full overflow-hidden rounded-3xl hover:shadow-md transition border-black/10 bg-white">
                     <div className="h-44 w-full">
                       <img src={p.cover} alt={p.title} className="h-full w-full object-cover" loading="lazy" />
                     </div>
@@ -701,12 +878,14 @@ export default function Page() {
                     <CardContent>
                       <div className="flex flex-wrap gap-2">
                         {p.tags.map((t: string) => (
-                          <Badge key={t} className="rounded-2xl">{t}</Badge>
+                          <Badge key={t} className="rounded-2xl border border-black/10 bg-neutral-50 text-neutral-800">
+                            {t}
+                          </Badge>
                         ))}
                       </div>
                       <p className="mt-3 text-sm text-neutral-600">{p.summary}</p>
                       <div className="mt-4 inline-flex items-center text-sm">
-                        <span className="text-neutral-600">Open gallery</span>
+                        <span className="text-neutral-800 font-medium">Open gallery</span>
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </div>
                     </CardContent>
@@ -719,16 +898,19 @@ export default function Page() {
       </section>
 
       {/* Testimonials */}
-      <section id="testimonials" className="border-b">
+      <section id="testimonials" className="border-b border-black/10 bg-white">
         <div className="mx-auto max-w-6xl px-4 py-14">
           <SectionTitle kicker="Reviews" title="What clients say" desc="Swap these with real reviews as you collect them." />
           <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {CONTENT.testimonials.map((t: any) => (
-              <Card key={t.id} className="h-full rounded-3xl">
+              <Card key={t.id} className="h-full rounded-3xl border-black/10 bg-white shadow-sm">
                 <CardHeader>
                   <div className="flex items-start gap-3">
-                    <div className="grid h-10 w-10 place-items-center rounded-2xl border border-black/15">
-                      <Quote className="h-5 w-5" />
+                    <div
+                      className="grid h-10 w-10 place-items-center rounded-2xl border border-black/10"
+                      style={{ backgroundColor: "rgba(251,191,36,0.18)" }}
+                    >
+                      <Quote className="h-5 w-5 text-neutral-900" />
                     </div>
                     <div>
                       <CardTitle className="text-base">{t.name}</CardTitle>
@@ -737,7 +919,7 @@ export default function Page() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-neutral-600">“{t.text}”</p>
+                  <p className="text-sm text-neutral-700">“{t.text}”</p>
                 </CardContent>
               </Card>
             ))}
@@ -745,7 +927,11 @@ export default function Page() {
 
           {CONTENT.socials.facebook ? (
             <div className="mt-8">
-              <Button asChild className="rounded-2xl">
+              <Button
+                asChild
+                className="rounded-2xl text-black"
+                style={{ backgroundColor: THEME.safety }}
+              >
                 <a href={CONTENT.socials.facebook} target="_blank" rel="noreferrer">
                   <Facebook className="h-4 w-4" /> Follow on Facebook
                 </a>
@@ -756,16 +942,20 @@ export default function Page() {
       </section>
 
       {/* Contact */}
-      <section id="contact">
+      <section id="contact" style={{ backgroundColor: THEME.light }}>
         <div className="mx-auto max-w-6xl px-4 py-14">
           <div className="grid gap-10 md:grid-cols-2">
             <div className="space-y-4">
               <SectionTitle kicker="Contact" title="Let’s price your project" desc="Send details by email or call—we’ll line up the next steps." />
 
-              <div className="rounded-3xl border border-black/15 p-4">
-                <div className="text-sm font-medium">{CONTENT.contact.name}</div>
+              <div className="rounded-3xl border border-black/10 p-4 bg-white shadow-sm">
+                <div className="text-sm font-semibold">{CONTENT.contact.name}</div>
                 <div className="mt-2 flex flex-wrap gap-2">
-                  <Button asChild className="rounded-2xl">
+                  <Button
+                    asChild
+                    className="rounded-2xl text-black"
+                    style={{ backgroundColor: THEME.safety }}
+                  >
                     <a href={`tel:${CONTENT.contact.phoneTel}`}>
                       <Phone className="h-4 w-4" /> {CONTENT.contact.phoneDisplay}
                     </a>
@@ -791,13 +981,13 @@ export default function Page() {
                 </div>
               </div>
 
-              <Card className="rounded-3xl overflow-hidden">
+              <Card className="rounded-3xl overflow-hidden border-black/10 bg-white shadow-sm">
                 <CardHeader>
                   <CardTitle className="text-base">Find us</CardTitle>
                   <CardDescription>Bonnyville, AB • {CONTENT.contact.locationLine2}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="overflow-hidden rounded-3xl border border-black/15">
+                  <div className="overflow-hidden rounded-3xl border border-black/10">
                     <iframe title="Lifestyle map" src={CONTENT.mapEmbedUrl} className="h-80 w-full" loading="lazy" />
                   </div>
                   <div className="mt-4 flex flex-wrap gap-2">
@@ -817,7 +1007,7 @@ export default function Page() {
               </Card>
             </div>
 
-            <Card className="rounded-3xl">
+            <Card className="rounded-3xl border-black/10 bg-white shadow-sm">
               <CardHeader>
                 <CardTitle className="text-base">Send a quote request</CardTitle>
                 <CardDescription>This opens an email draft on your device.</CardDescription>
@@ -825,8 +1015,17 @@ export default function Page() {
               <CardContent className="space-y-3">
                 <Input value={form.name} onChange={(e) => setForm((s) => ({ ...s, name: e.target.value }))} placeholder="Your name" />
                 <Input value={form.phone} onChange={(e) => setForm((s) => ({ ...s, phone: e.target.value }))} placeholder="Your phone" />
-                <Textarea value={form.details} onChange={(e) => setForm((s) => ({ ...s, details: e.target.value }))} placeholder="Tell us about your project…" className="min-h-[140px]" />
-                <Button asChild className="w-full rounded-2xl">
+                <Textarea
+                  value={form.details}
+                  onChange={(e) => setForm((s) => ({ ...s, details: e.target.value }))}
+                  placeholder="Tell us about your project…"
+                  className="min-h-[140px]"
+                />
+                <Button
+                  asChild
+                  className="w-full rounded-2xl text-black"
+                  style={{ backgroundColor: THEME.safety }}
+                >
                   <a href={mailto}>Open email draft</a>
                 </Button>
                 <div className="text-xs text-neutral-600">
@@ -838,15 +1037,16 @@ export default function Page() {
         </div>
       </section>
 
-      <footer className="border-t">
+      {/* Footer */}
+      <footer className="border-t border-black/10 bg-white">
         <div className="mx-auto max-w-6xl px-4 py-10">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-            <div className="flex items-center gap-3">
-              <div className="grid h-10 w-10 place-items-center rounded-2xl border border-black/15 overflow-hidden">
-                <img src={CONTENT.brand.logo} alt="Logo" className="h-10 w-10 object-cover" />
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="h-11 w-28 sm:w-32 rounded-2xl border border-black/10 overflow-hidden bg-white shadow-sm shrink-0">
+                <img src={CONTENT.brand.logo} alt="Logo" className="h-full w-full object-contain p-1" />
               </div>
-              <div>
-                <div className="text-sm font-semibold">{CONTENT.name}</div>
+              <div className="min-w-0">
+                <div className="text-sm font-semibold truncate">{CONTENT.name}</div>
                 <div className="mt-1 text-xs text-neutral-600">
                   Framing • Foundations • Siding • Shops • Pole barns • Saunas • Sunrooms • General Contracting
                 </div>
@@ -861,24 +1061,31 @@ export default function Page() {
               <Button variant="outline" className="rounded-2xl" onClick={() => setOpenAllServices(true)}>
                 <Grid2X2 className="h-4 w-4" /> All services
               </Button>
+              <Button variant="outline" className="rounded-2xl" onClick={() => setSoundEnabled((s) => !s)}>
+                {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />} Sound
+              </Button>
               {CONTENT.socials.facebook ? (
                 <Button asChild variant="outline" className="rounded-2xl">
                   <a href={CONTENT.socials.facebook} target="_blank" rel="noreferrer"><Facebook className="h-4 w-4" /> Facebook</a>
                 </Button>
               ) : null}
-              <Button asChild className="rounded-2xl"><a href={`tel:${CONTENT.contact.phoneTel}`}><Phone className="h-4 w-4" /> Call</a></Button>
+              <Button asChild className="rounded-2xl text-black" style={{ backgroundColor: THEME.safety }}>
+                <a href={`tel:${CONTENT.contact.phoneTel}`}><Phone className="h-4 w-4" /> Call</a>
+              </Button>
             </div>
           </div>
 
-          <div className="mt-8 text-xs text-neutral-600">© {new Date().getFullYear()} {CONTENT.name}. All rights reserved.</div>
+          <div className="mt-8 text-xs text-neutral-600">
+            © {new Date().getFullYear()} {CONTENT.name}. All rights reserved.
+          </div>
         </div>
       </footer>
 
-      {/* ALL SERVICES MODAL (search + categories) */}
+      {/* ALL SERVICES MODAL */}
       <Dialog open={openAllServices} onOpenChange={(v) => setOpenAllServices(v)}>
         <DialogContent className="max-w-5xl rounded-3xl p-0 overflow-hidden">
           <div className="max-h-[85vh] overflow-auto">
-            <div className="sticky top-0 z-10 border-b bg-white/95 backdrop-blur">
+            <div className="sticky top-0 z-10 border-b border-black/10 bg-white/95 backdrop-blur">
               <DialogHeader className="px-6 py-4">
                 <div className="flex items-start justify-between gap-4">
                   <div>
@@ -888,8 +1095,12 @@ export default function Page() {
                     </DialogDescription>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button className="rounded-2xl" onClick={goToContact}>Request Quote</Button>
-                    <Button variant="ghost" size="icon" className="rounded-2xl" onClick={() => setOpenAllServices(false)}><X className="h-5 w-5" /></Button>
+                    <Button className="rounded-2xl text-black" style={{ backgroundColor: THEME.safety }} onClick={goToContact}>
+                      Request Quote
+                    </Button>
+                    <Button variant="ghost" size="icon" className="rounded-2xl" onClick={() => setOpenAllServices(false)}>
+                      <X className="h-5 w-5" />
+                    </Button>
                   </div>
                 </div>
                 <div className="mt-4 flex items-center gap-2">
@@ -928,18 +1139,23 @@ export default function Page() {
                             }}
                             className="text-left"
                           >
-                            <Card className="rounded-3xl hover:shadow-sm transition">
+                            <Card className="rounded-3xl hover:shadow-md transition border-black/10 bg-white">
                               <CardHeader>
                                 <div className="flex items-start gap-3">
-                                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-black/15">
-                                    <Icon className="h-5 w-5" />
+                                  <div
+                                    className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-black/10"
+                                    style={{ backgroundColor: "rgba(251,191,36,0.18)" }}
+                                  >
+                                    <Icon className="h-5 w-5 text-neutral-900" />
                                   </div>
                                   <div>
                                     <CardTitle className="text-base">{s.title}</CardTitle>
                                     <CardDescription className="mt-1">{s.short}</CardDescription>
                                     <div className="mt-3 flex flex-wrap gap-2">
                                       {(s.tags || []).map((t: string) => (
-                                        <Badge key={t} className="rounded-2xl">{t}</Badge>
+                                        <Badge key={t} className="rounded-2xl border border-black/10 bg-neutral-50 text-neutral-800">
+                                          {t}
+                                        </Badge>
                                       ))}
                                     </div>
                                   </div>
@@ -963,23 +1179,35 @@ export default function Page() {
         <DialogContent className="max-w-5xl rounded-3xl p-0 overflow-hidden">
           {openService ? (
             <div className="max-h-[85vh] overflow-auto">
-              <div className="sticky top-0 z-10 border-b bg-white/95 backdrop-blur">
+              <div className="sticky top-0 z-10 border-b border-black/10 bg-white/95 backdrop-blur">
                 <DialogHeader className="px-6 py-4">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <DialogTitle className="text-xl">{openService.id === "saunas" ? "Sauna" : openService.title}</DialogTitle>
+                      <DialogTitle className="text-xl">
+                        {openService.id === "saunas" ? "Sauna" : openService.title}
+                      </DialogTitle>
                       <DialogDescription className="mt-1">{openService.short}</DialogDescription>
                       <div className="mt-3 flex flex-wrap gap-2">
                         {(openService.tags || []).map((t: string) => (
-                          <Badge key={t} className="rounded-2xl">{t}</Badge>
+                          <Badge key={t} className="rounded-2xl border border-black/10 bg-neutral-50 text-neutral-800">
+                            {t}
+                          </Badge>
                         ))}
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <Button className="rounded-2xl" onClick={goToContact}>Request Quote</Button>
-                      <Button asChild variant="outline" className="rounded-2xl"><a href={`tel:${CONTENT.contact.phoneTel}`}><Phone className="h-4 w-4" /> Call</a></Button>
-                      <Button variant="ghost" size="icon" className="rounded-2xl" onClick={() => setOpenService(null)}><X className="h-5 w-5" /></Button>
+                      <Button className="rounded-2xl text-black" style={{ backgroundColor: THEME.safety }} onClick={goToContact}>
+                        Request Quote
+                      </Button>
+                      <Button asChild variant="outline" className="rounded-2xl">
+                        <a href={`tel:${CONTENT.contact.phoneTel}`}>
+                          <Phone className="h-4 w-4" /> Call
+                        </a>
+                      </Button>
+                      <Button variant="ghost" size="icon" className="rounded-2xl" onClick={() => setOpenService(null)}>
+                        <X className="h-5 w-5" />
+                      </Button>
                     </div>
                   </div>
                 </DialogHeader>
@@ -988,7 +1216,7 @@ export default function Page() {
               <div className="px-6 py-6 space-y-6">
                 <Gallery images={openService.gallery || []} label={openService.title} />
                 <div className="grid gap-4 md:grid-cols-2">
-                  <Card className="rounded-3xl">
+                  <Card className="rounded-3xl border-black/10 bg-white shadow-sm">
                     <CardHeader>
                       <CardTitle className="text-base">{openService.detail?.heading || "Details"}</CardTitle>
                       <CardDescription>{openService.detail?.copy}</CardDescription>
@@ -996,14 +1224,17 @@ export default function Page() {
                     <CardContent>
                       <ul className="space-y-2 text-sm text-neutral-700">
                         {(openService.detail?.list || []).map((x: string) => (
-                          <li key={x} className="flex items-start gap-2"><Check className="mt-0.5 h-4 w-4" /><span>{x}</span></li>
+                          <li key={x} className="flex items-start gap-2">
+                            <Check className="mt-0.5 h-4 w-4" />
+                            <span>{x}</span>
+                          </li>
                         ))}
                       </ul>
                     </CardContent>
                   </Card>
 
                   {openService.id === "saunas" && openService.benefits ? (
-                    <Card className="rounded-3xl">
+                    <Card className="rounded-3xl border-black/10 bg-white shadow-sm">
                       <CardHeader>
                         <CardTitle className="text-base">{openService.benefits.heading}</CardTitle>
                         <CardDescription>{openService.benefits.intro}</CardDescription>
@@ -1011,21 +1242,30 @@ export default function Page() {
                       <CardContent>
                         <ul className="space-y-2 text-sm text-neutral-700">
                           {openService.benefits.list.map((x: string) => (
-                            <li key={x} className="flex items-start gap-2"><Check className="mt-0.5 h-4 w-4" /><span>{x}</span></li>
+                            <li key={x} className="flex items-start gap-2">
+                              <Check className="mt-0.5 h-4 w-4" />
+                              <span>{x}</span>
+                            </li>
                           ))}
                         </ul>
                         <div className="mt-4 text-xs text-neutral-600">{openService.benefits.note}</div>
                       </CardContent>
                     </Card>
                   ) : (
-                    <Card className="rounded-3xl">
+                    <Card className="rounded-3xl border-black/10 bg-white shadow-sm">
                       <CardHeader>
                         <CardTitle className="text-base">Next step</CardTitle>
                         <CardDescription>Tell us your timeline and location—we’ll price it.</CardDescription>
                       </CardHeader>
                       <CardContent className="flex flex-wrap gap-2">
-                        <Button className="rounded-2xl" onClick={goToContact}>Request Quote</Button>
-                        <Button asChild variant="outline" className="rounded-2xl"><a href={`tel:${CONTENT.contact.phoneTel}`}><Phone className="h-4 w-4" /> Call</a></Button>
+                        <Button className="rounded-2xl text-black" style={{ backgroundColor: THEME.safety }} onClick={goToContact}>
+                          Request Quote
+                        </Button>
+                        <Button asChild variant="outline" className="rounded-2xl">
+                          <a href={`tel:${CONTENT.contact.phoneTel}`}>
+                            <Phone className="h-4 w-4" /> Call
+                          </a>
+                        </Button>
                       </CardContent>
                     </Card>
                   )}
@@ -1041,22 +1281,34 @@ export default function Page() {
         <DialogContent className="max-w-5xl rounded-3xl p-0 overflow-hidden">
           {openProject ? (
             <div className="max-h-[85vh] overflow-auto">
-              <div className="sticky top-0 z-10 border-b bg-white/95 backdrop-blur">
+              <div className="sticky top-0 z-10 border-b border-black/10 bg-white/95 backdrop-blur">
                 <DialogHeader className="px-6 py-4">
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <DialogTitle className="text-xl">{openProject.title}</DialogTitle>
-                      <DialogDescription className="mt-1">{openProject.location} • {openProject.summary}</DialogDescription>
+                      <DialogDescription className="mt-1">
+                        {openProject.location} • {openProject.summary}
+                      </DialogDescription>
                       <div className="mt-3 flex flex-wrap gap-2">
                         {(openProject.tags || []).map((t: string) => (
-                          <Badge key={t} className="rounded-2xl">{t}</Badge>
+                          <Badge key={t} className="rounded-2xl border border-black/10 bg-neutral-50 text-neutral-800">
+                            {t}
+                          </Badge>
                         ))}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button className="rounded-2xl" onClick={goToContact}>Request Quote</Button>
-                      <Button asChild variant="outline" className="rounded-2xl"><a href={`tel:${CONTENT.contact.phoneTel}`}><Phone className="h-4 w-4" /> Call</a></Button>
-                      <Button variant="ghost" size="icon" className="rounded-2xl" onClick={() => setOpenProject(null)}><X className="h-5 w-5" /></Button>
+                      <Button className="rounded-2xl text-black" style={{ backgroundColor: THEME.safety }} onClick={goToContact}>
+                        Request Quote
+                      </Button>
+                      <Button asChild variant="outline" className="rounded-2xl">
+                        <a href={`tel:${CONTENT.contact.phoneTel}`}>
+                          <Phone className="h-4 w-4" /> Call
+                        </a>
+                      </Button>
+                      <Button variant="ghost" size="icon" className="rounded-2xl" onClick={() => setOpenProject(null)}>
+                        <X className="h-5 w-5" />
+                      </Button>
                     </div>
                   </div>
                 </DialogHeader>
@@ -1070,8 +1322,12 @@ export default function Page() {
                 <Gallery images={[openProject.cover, ...(openProject.photos || [])]} label={openProject.title} />
 
                 <div className="flex flex-wrap gap-2">
-                  <Button className="rounded-2xl" onClick={goToContact}>Request Quote</Button>
-                  <Button asChild variant="outline" className="rounded-2xl"><a href={`mailto:${CONTENT.contact.email}`}>Email</a></Button>
+                  <Button className="rounded-2xl text-black" style={{ backgroundColor: THEME.safety }} onClick={goToContact}>
+                    Request Quote
+                  </Button>
+                  <Button asChild variant="outline" className="rounded-2xl">
+                    <a href={`mailto:${CONTENT.contact.email}`}>Email</a>
+                  </Button>
                 </div>
               </div>
             </div>
