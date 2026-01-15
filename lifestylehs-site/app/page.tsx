@@ -1,7 +1,6 @@
-
 "use client";
 
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Card,
@@ -66,7 +65,7 @@ function SectionTitle({
             {kicker}
           </div>
         ) : null}
-        <h2 className="text-2xl font-semibold tracking-tight md:text-3xl text-slate-900">
+        <h2 className="text-2xl font-semibold tracking-tight md:text-3xl text-slate-950">
           {title}
         </h2>
         {desc ? <p className="max-w-2xl text-slate-600">{desc}</p> : null}
@@ -111,7 +110,7 @@ function BeforeAfter({
   return (
     <div className="rounded-3xl border border-slate-200 overflow-hidden bg-white shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 bg-white px-4 py-3">
-        <div className="text-sm font-medium text-slate-900">Before / After</div>
+        <div className="text-sm font-medium text-slate-950">Before / After</div>
         <div className="flex gap-2">
           <Button
             type="button"
@@ -151,9 +150,7 @@ export default function Page() {
       brand: {
         logo: "/images/lifestylehs-logo.png",
         heroCollage: "/images/lifestylehs-hero-collage-clean.png",
-        coverCollage: "/images/lifestylehs-cover-collage.png",
-        // Put a saw sound file here (see instructions below)
-        sawSound: "/sounds/saw.mp3",
+        sawSound: "/sounds/saw.mp3", // add this file in /public/sounds/saw.mp3
       },
       contact: {
         name: "Jeff Dunlop",
@@ -274,19 +271,6 @@ export default function Page() {
             copy: "A proper sauna is more than heat—it’s airflow, materials, and moisture control. We can build to your layout and finish style, including cedar interiors and lighting details.",
             list: ["Custom layout to fit your space","Ventilation & moisture control","Cedar/wood interior finishing","Door, bench, and lighting options"],
           },
-          benefits: {
-            heading: "Sauna benefits",
-            intro: "People use saunas for relaxation, recovery, and overall wellness. Benefits can vary person-to-person, but common reasons clients love having a sauna include:",
-            list: [
-              "Deep relaxation and stress relief",
-              "Post-workout recovery and muscle relaxation",
-              "Improved circulation (temporary increase during heat exposure)",
-              "Better sleep for many people",
-              "A warm routine that supports consistent self-care",
-              "A great feature for home value and lifestyle",
-            ],
-            note: "If you have medical conditions (heart disease, uncontrolled blood pressure, pregnancy, etc.), check with your doctor before starting regular sauna use.",
-          },
         },
         {
           id: "gc",
@@ -315,31 +299,10 @@ export default function Page() {
           photos: ["/images/project-1-1.jpg", "/images/project-1-2.jpg", "/images/project-1-3.jpg"],
           beforeAfter: { before: "/images/project-1-before.jpg", after: "/images/project-1-after.jpg" },
         },
-        {
-          id: "proj-2",
-          title: "Shop / Garage Build",
-          location: "Lakeland County",
-          tags: ["Framing", "Foundations"],
-          summary: "Garage/shop build coordination—foundation readiness through framing completion.",
-          cover: "/images/project-2-cover.jpg",
-          photos: ["/images/project-2-1.jpg", "/images/project-2-2.jpg", "/images/project-2-3.jpg"],
-          beforeAfter: { before: "/images/project-2-before.jpg", after: "/images/project-2-after.jpg" },
-        },
-        {
-          id: "proj-3",
-          title: "Exterior Siding Upgrade",
-          location: "Cold Lake area",
-          tags: ["Siding", "Exteriors"],
-          summary: "Exterior refresh with tight trim details and weatherproof finishing.",
-          cover: "/images/project-3-cover.jpg",
-          photos: ["/images/project-3-1.jpg", "/images/project-3-2.jpg", "/images/project-3-3.jpg"],
-          beforeAfter: { before: "/images/project-3-before.jpg", after: "/images/project-3-after.jpg" },
-        },
       ],
       testimonials: [
         { id: "t-1", name: "Local homeowner", location: "Bonnyville", text: "Great communication and solid workmanship. The crew was on time, clean, and the framing turned out perfect." },
         { id: "t-2", name: "Shop owner", location: "Lakeland County", text: "Professional start to finish. They kept the schedule tight and the quality was excellent." },
-        { id: "t-3", name: "Renovation client", location: "Cold Lake area", text: "Very detail-oriented—especially on the exterior finishing. Would hire again." },
       ],
       mapEmbedUrl: "https://www.google.com/maps?q=Bonnyville,+AB+T9N+2P4&output=embed",
     }),
@@ -352,20 +315,25 @@ export default function Page() {
   const [openAllServices, setOpenAllServices] = useState(false);
   const [serviceQuery, setServiceQuery] = useState("");
 
-  // Sound
+  // Sound (autoplay-safe)
   const [soundOn, setSoundOn] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  const ensureAudio = () => {
+    if (!audioRef.current) {
+      audioRef.current = new Audio(CONTENT.brand.sawSound);
+      audioRef.current.volume = 0.6;
+    }
+    return audioRef.current;
+  };
+
   const playSaw = async () => {
     try {
-      if (!audioRef.current) {
-        audioRef.current = new Audio(CONTENT.brand.sawSound);
-        audioRef.current.volume = 0.6;
-      }
-      audioRef.current.currentTime = 0;
-      await audioRef.current.play();
+      const a = ensureAudio();
+      a.currentTime = 0;
+      await a.play();
     } catch {
-      // Autoplay restrictions or missing file — no crash.
+      // Browser may block autoplay until user interacts; safe to ignore.
     }
   };
 
@@ -374,6 +342,16 @@ export default function Page() {
     setSoundOn(next);
     if (next) await playSaw();
   };
+
+  // Optional: once the user clicks anywhere, if sound is ON, play once.
+  useEffect(() => {
+    const onFirstInteraction = async () => {
+      if (soundOn) await playSaw();
+      window.removeEventListener("pointerdown", onFirstInteraction);
+    };
+    window.addEventListener("pointerdown", onFirstInteraction, { once: true });
+    return () => window.removeEventListener("pointerdown", onFirstInteraction);
+  }, [soundOn]);
 
   const mailto = useMemo(() => {
     const subject = encodeURIComponent(`Quote request — ${CONTENT.name}`);
@@ -432,13 +410,17 @@ export default function Page() {
     document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // NAV BUTTON STYLE (fixes white pills + invisible text)
+  const navBtn =
+    "rounded-2xl border-white/20 bg-transparent text-white hover:bg-white/10 hover:text-white";
+
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      {/* Top bar (charcoal + orange) */}
-      <div className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/90 backdrop-blur">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white text-slate-900">
+      {/* Top bar: charcoal steel */}
+      <div className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/95 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3 min-w-0">
-            {/* FIX: logo never cropped */}
+            {/* logo never cropped */}
             <div className="shrink-0 grid h-11 w-11 place-items-center rounded-xl bg-white p-1 shadow-sm">
               <img
                 src={CONTENT.brand.logo}
@@ -447,7 +429,6 @@ export default function Page() {
               />
             </div>
 
-            {/* FIX: name won't get chopped */}
             <div className="min-w-0">
               <div className="text-sm font-semibold leading-tight text-white truncate">
                 {CONTENT.name}
@@ -459,38 +440,29 @@ export default function Page() {
           </div>
 
           <div className="hidden md:flex items-center gap-2">
-            <Button asChild variant="outline" className="rounded-2xl border-white/20 text-white hover:bg-white/10">
+            <Button asChild variant="outline" className={navBtn}>
               <a href="#services">Services</a>
             </Button>
-            <Button asChild variant="outline" className="rounded-2xl border-white/20 text-white hover:bg-white/10">
+            <Button asChild variant="outline" className={navBtn}>
               <a href="#projects">Projects</a>
             </Button>
-            <Button asChild variant="outline" className="rounded-2xl border-white/20 text-white hover:bg-white/10">
+            <Button asChild variant="outline" className={navBtn}>
               <a href="#testimonials">Reviews</a>
             </Button>
-            <Button asChild variant="outline" className="rounded-2xl border-white/20 text-white hover:bg-white/10">
+            <Button asChild variant="outline" className={navBtn}>
               <a href="#contact">Contact</a>
             </Button>
 
-            <Button
-              variant="outline"
-              className="rounded-2xl border-white/20 text-white hover:bg-white/10"
-              onClick={() => setOpenAllServices(true)}
-            >
+            <Button variant="outline" className={navBtn} onClick={() => setOpenAllServices(true)}>
               <Grid2X2 className="h-4 w-4" /> All services
             </Button>
 
-            <Button
-              variant="outline"
-              className="rounded-2xl border-white/20 text-white hover:bg-white/10"
-              onClick={toggleSound}
-              title="Play saw sound"
-            >
+            <Button variant="outline" className={navBtn} onClick={toggleSound} title="Toggle saw sound">
               {soundOn ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />} Sound
             </Button>
 
             {CONTENT.socials.facebook ? (
-              <Button asChild variant="outline" className="rounded-2xl border-white/20 text-white hover:bg-white/10">
+              <Button asChild variant="outline" className={navBtn}>
                 <a href={CONTENT.socials.facebook} target="_blank" rel="noreferrer">
                   <Facebook className="h-4 w-4" /> Facebook
                 </a>
@@ -504,12 +476,22 @@ export default function Page() {
             </Button>
           </div>
 
-          {/* mobile */}
+          {/* Mobile */}
           <div className="flex md:hidden items-center gap-2">
-            <Button size="sm" variant="outline" className="rounded-2xl border-white/20 text-white hover:bg-white/10" onClick={() => setOpenAllServices(true)}>
+            <Button
+              size="sm"
+              variant="outline"
+              className="rounded-2xl border-white/20 bg-transparent text-white hover:bg-white/10"
+              onClick={() => setOpenAllServices(true)}
+            >
               <Grid2X2 className="h-4 w-4" />
             </Button>
-            <Button size="sm" variant="outline" className="rounded-2xl border-white/20 text-white hover:bg-white/10" onClick={toggleSound}>
+            <Button
+              size="sm"
+              variant="outline"
+              className="rounded-2xl border-white/20 bg-transparent text-white hover:bg-white/10"
+              onClick={toggleSound}
+            >
               {soundOn ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
             </Button>
             <Button asChild size="sm" className="rounded-2xl bg-orange-500 hover:bg-orange-600 text-white">
@@ -523,7 +505,7 @@ export default function Page() {
       <section className="relative overflow-hidden border-b border-slate-200">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-orange-500/10 blur-3xl" />
-          <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-slate-900/10 blur-3xl" />
+          <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-slate-950/10 blur-3xl" />
         </div>
 
         <div className="mx-auto max-w-6xl px-4 py-10 md:py-14 relative">
@@ -538,7 +520,7 @@ export default function Page() {
                 Serving {CONTENT.serviceAreas.join(" • ")}
               </motion.p>
 
-              <motion.h1 variants={fadeUp} custom={1} className="mt-5 text-4xl font-semibold tracking-tight md:text-5xl">
+              <motion.h1 variants={fadeUp} custom={1} className="mt-5 text-4xl font-semibold tracking-tight md:text-5xl text-slate-950">
                 Built straight. Built strong.
                 <span className="block text-slate-600">
                   Framing, foundations, siding, and custom spaces.
@@ -585,7 +567,7 @@ export default function Page() {
                     className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 transition shadow-sm"
                   >
                     <ImageIcon className="h-4 w-4 text-orange-600" />
-                    {s.id === "saunas" ? "Sauna benefits" : s.title}
+                    {s.title}
                   </button>
                 ))}
               </motion.div>
@@ -663,101 +645,50 @@ export default function Page() {
               }
             />
 
-            <div className="mt-8 space-y-10">
-              {(() => {
-                const order = ["Core construction", "Outbuildings", "Custom builds", "Project management", "Exteriors", "Other"];
-                const grouped: Record<string, any[]> = {};
-                for (const s of featuredServices as any[]) {
-                  const c = s.category || "Other";
-                  if (!grouped[c]) grouped[c] = [];
-                  grouped[c].push(s);
-                }
-                const cats = Array.from(new Set([...order, ...Object.keys(grouped)])).filter((c) => grouped[c]?.length);
-
-                return cats.map((cat) => (
-                  <div key={cat} className="space-y-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <div className="text-sm font-semibold text-slate-900">{cat}</div>
-                        <div className="mt-1 text-sm text-slate-600">
-                          {cat === "Core construction"
-                            ? "Structure-first work: framing and foundations."
-                            : cat === "Exteriors"
-                            ? "Weatherproof, durable exterior finishes."
-                            : cat === "Outbuildings"
-                            ? "Shops and storage buildings built for Alberta."
-                            : cat === "Custom builds"
-                            ? "Lifestyle upgrades built to fit your space."
-                            : cat === "Project management"
-                            ? "One point of contact to coordinate your build."
-                            : ""}
-                        </div>
-                      </div>
-                      <Button className="rounded-2xl border-slate-300" variant="outline" onClick={() => setOpenAllServices(true)}>
-                        See all <ArrowRight className="h-4 w-4" />
-                      </Button>
-                    </div>
-
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                      {grouped[cat].map((s: any, i: number) => {
-                        const Icon = s.icon as IconType;
-                        return (
-                          <motion.div key={s.id} variants={fadeUp} custom={i}>
-                            <button type="button" onClick={() => setOpenService(s)} className="block w-full text-left">
-                              <Card className="h-full rounded-3xl border border-slate-200 shadow-sm hover:shadow-md transition">
-                                <CardHeader>
-                                  <div className="flex items-start gap-3">
-                                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-slate-200 bg-slate-50">
-                                      <Icon className="h-5 w-5 text-orange-600" />
-                                    </div>
-                                    <div>
-                                      <CardTitle className="text-base">{s.title}</CardTitle>
-                                      <CardDescription className="mt-1">{s.short}</CardDescription>
-                                      <div className="mt-3 flex flex-wrap gap-2">
-                                        {(s.tags || []).map((t: string) => (
-                                          <Badge key={t} className="rounded-2xl bg-slate-900 text-white">
-                                            {t}
-                                          </Badge>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  </div>
-                                </CardHeader>
-                                <CardContent>
-                                  <ul className="space-y-2 text-sm text-slate-700">
-                                    {(s.bullets || []).slice(0, 3).map((b: string) => (
-                                      <li key={b} className="flex items-start gap-2">
-                                        <Check className="mt-0.5 h-4 w-4 text-orange-600" />
-                                        <span>{b}</span>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                  <div className="mt-4 inline-flex items-center text-sm">
-                                    <span className="text-slate-600">View photos & details</span>
-                                    <ArrowRight className="ml-2 h-4 w-4" />
-                                  </div>
-                                </CardContent>
-                              </Card>
-                            </button>
-                          </motion.div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ));
-              })()}
-            </div>
-
-            <div className="mt-10 rounded-3xl border border-slate-200 bg-white p-4 text-sm text-slate-700 flex flex-col gap-3 md:flex-row md:items-center md:justify-between shadow-sm">
-              <div>
-                <div className="font-medium">Need something specific?</div>
-                <div className="text-slate-600">
-                  Open “All services” and search by keyword (ex: “pole”, “shop”, “sauna”).
-                </div>
-              </div>
-              <Button className="rounded-2xl bg-orange-500 hover:bg-orange-600 text-white" onClick={() => setOpenAllServices(true)}>
-                <Search className="h-4 w-4" /> Search all services
-              </Button>
+            <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {featuredServices.map((s: any, i: number) => {
+                const Icon = s.icon as IconType;
+                return (
+                  <motion.div key={s.id} variants={fadeUp} custom={i}>
+                    <button type="button" onClick={() => setOpenService(s)} className="block w-full text-left">
+                      <Card className="h-full rounded-3xl border border-slate-200 shadow-sm hover:shadow-md transition">
+                        <CardHeader>
+                          <div className="flex items-start gap-3">
+                            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-slate-200 bg-slate-50">
+                              <Icon className="h-5 w-5 text-orange-600" />
+                            </div>
+                            <div>
+                              <CardTitle className="text-base">{s.title}</CardTitle>
+                              <CardDescription className="mt-1">{s.short}</CardDescription>
+                              <div className="mt-3 flex flex-wrap gap-2">
+                                {(s.tags || []).map((t: string) => (
+                                  <Badge key={t} className="rounded-2xl bg-slate-950 text-white">
+                                    {t}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <ul className="space-y-2 text-sm text-slate-700">
+                            {(s.bullets || []).slice(0, 3).map((b: string) => (
+                              <li key={b} className="flex items-start gap-2">
+                                <Check className="mt-0.5 h-4 w-4 text-orange-600" />
+                                <span>{b}</span>
+                              </li>
+                            ))}
+                          </ul>
+                          <div className="mt-4 inline-flex items-center text-sm">
+                            <span className="text-slate-600">View photos & details</span>
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </button>
+                  </motion.div>
+                );
+              })}
             </div>
           </motion.div>
         </div>
@@ -782,7 +713,7 @@ export default function Page() {
                     <CardContent>
                       <div className="flex flex-wrap gap-2">
                         {p.tags.map((t: string) => (
-                          <Badge key={t} className="rounded-2xl bg-slate-900 text-white">{t}</Badge>
+                          <Badge key={t} className="rounded-2xl bg-slate-950 text-white">{t}</Badge>
                         ))}
                       </div>
                       <p className="mt-3 text-sm text-slate-600">{p.summary}</p>
@@ -823,16 +754,6 @@ export default function Page() {
               </Card>
             ))}
           </div>
-
-          {CONTENT.socials.facebook ? (
-            <div className="mt-8">
-              <Button asChild className="rounded-2xl bg-orange-500 hover:bg-orange-600 text-white">
-                <a href={CONTENT.socials.facebook} target="_blank" rel="noreferrer">
-                  <Facebook className="h-4 w-4" /> Follow on Facebook
-                </a>
-              </Button>
-            </div>
-          ) : null}
         </div>
       </section>
 
@@ -920,47 +841,8 @@ export default function Page() {
       </section>
 
       <footer className="border-t border-slate-200 bg-white">
-        <div className="mx-auto max-w-6xl px-4 py-10">
-          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="grid h-11 w-11 place-items-center rounded-xl bg-slate-50 p-1 border border-slate-200">
-                <img src={CONTENT.brand.logo} alt="Logo" className="h-full w-full object-contain" />
-              </div>
-              <div className="min-w-0">
-                <div className="text-sm font-semibold truncate">{CONTENT.name}</div>
-                <div className="mt-1 text-xs text-slate-600">
-                  Framing • Foundations • Siding • Shops • Pole barns • Saunas • Sunrooms • General Contracting
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2">
-              <Button asChild variant="outline" className="rounded-2xl border-slate-300"><a href="#services">Services</a></Button>
-              <Button asChild variant="outline" className="rounded-2xl border-slate-300"><a href="#projects">Projects</a></Button>
-              <Button asChild variant="outline" className="rounded-2xl border-slate-300"><a href="#testimonials">Reviews</a></Button>
-              <Button asChild variant="outline" className="rounded-2xl border-slate-300"><a href="#contact">Contact</a></Button>
-              <Button variant="outline" className="rounded-2xl border-slate-300" onClick={() => setOpenAllServices(true)}>
-                <Grid2X2 className="h-4 w-4" /> All services
-              </Button>
-              <Button variant="outline" className="rounded-2xl border-slate-300" onClick={toggleSound}>
-                {soundOn ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />} Sound
-              </Button>
-              {CONTENT.socials.facebook ? (
-                <Button asChild variant="outline" className="rounded-2xl border-slate-300">
-                  <a href={CONTENT.socials.facebook} target="_blank" rel="noreferrer">
-                    <Facebook className="h-4 w-4" /> Facebook
-                  </a>
-                </Button>
-              ) : null}
-              <Button asChild className="rounded-2xl bg-orange-500 hover:bg-orange-600 text-white">
-                <a href={`tel:${CONTENT.contact.phoneTel}`}><Phone className="h-4 w-4" /> Call</a>
-              </Button>
-            </div>
-          </div>
-
-          <div className="mt-8 text-xs text-slate-600">
-            © {new Date().getFullYear()} {CONTENT.name}. All rights reserved.
-          </div>
+        <div className="mx-auto max-w-6xl px-4 py-10 text-xs text-slate-600">
+          © {new Date().getFullYear()} {CONTENT.name}. All rights reserved.
         </div>
       </footer>
 
@@ -974,7 +856,7 @@ export default function Page() {
                   <div>
                     <DialogTitle className="text-xl">All services</DialogTitle>
                     <DialogDescription className="mt-1">
-                      Add as many services as you want—homepage stays clean using featuredServiceIds.
+                      Search everything and keep the homepage clean.
                     </DialogDescription>
                   </div>
                   <div className="flex items-center gap-2">
@@ -1004,7 +886,7 @@ export default function Page() {
                 if (!list.length) return null;
                 return (
                   <div key={c} className="space-y-3">
-                    <div className="text-sm font-semibold text-slate-900">{c}</div>
+                    <div className="text-sm font-semibold text-slate-950">{c}</div>
                     <div className="grid gap-4 md:grid-cols-2">
                       {list.map((s: any) => {
                         const Icon = s.icon as IconType;
@@ -1029,7 +911,7 @@ export default function Page() {
                                     <CardDescription className="mt-1">{s.short}</CardDescription>
                                     <div className="mt-3 flex flex-wrap gap-2">
                                       {(s.tags || []).map((t: string) => (
-                                        <Badge key={t} className="rounded-2xl bg-slate-900 text-white">{t}</Badge>
+                                        <Badge key={t} className="rounded-2xl bg-slate-950 text-white">{t}</Badge>
                                       ))}
                                     </div>
                                   </div>
@@ -1057,13 +939,11 @@ export default function Page() {
                 <DialogHeader className="px-6 py-4">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <DialogTitle className="text-xl">
-                        {openService.id === "saunas" ? "Sauna" : openService.title}
-                      </DialogTitle>
+                      <DialogTitle className="text-xl">{openService.title}</DialogTitle>
                       <DialogDescription className="mt-1">{openService.short}</DialogDescription>
                       <div className="mt-3 flex flex-wrap gap-2">
                         {(openService.tags || []).map((t: string) => (
-                          <Badge key={t} className="rounded-2xl bg-slate-900 text-white">{t}</Badge>
+                          <Badge key={t} className="rounded-2xl bg-slate-950 text-white">{t}</Badge>
                         ))}
                       </div>
                     </div>
@@ -1101,38 +981,18 @@ export default function Page() {
                     </CardContent>
                   </Card>
 
-                  {openService.id === "saunas" && openService.benefits ? (
-                    <Card className="rounded-3xl border border-slate-200 shadow-sm">
-                      <CardHeader>
-                        <CardTitle className="text-base">{openService.benefits.heading}</CardTitle>
-                        <CardDescription>{openService.benefits.intro}</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <ul className="space-y-2 text-sm text-slate-700">
-                          {openService.benefits.list.map((x: string) => (
-                            <li key={x} className="flex items-start gap-2">
-                              <Check className="mt-0.5 h-4 w-4 text-orange-600" />
-                              <span>{x}</span>
-                            </li>
-                          ))}
-                        </ul>
-                        <div className="mt-4 text-xs text-slate-600">{openService.benefits.note}</div>
-                      </CardContent>
-                    </Card>
-                  ) : (
-                    <Card className="rounded-3xl border border-slate-200 shadow-sm">
-                      <CardHeader>
-                        <CardTitle className="text-base">Next step</CardTitle>
-                        <CardDescription>Tell us your timeline and location—we’ll price it.</CardDescription>
-                      </CardHeader>
-                      <CardContent className="flex flex-wrap gap-2">
-                        <Button className="rounded-2xl bg-orange-500 hover:bg-orange-600 text-white" onClick={goToContact}>Request Quote</Button>
-                        <Button asChild variant="outline" className="rounded-2xl border-slate-300">
-                          <a href={`tel:${CONTENT.contact.phoneTel}`}><Phone className="h-4 w-4" /> Call</a>
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  )}
+                  <Card className="rounded-3xl border border-slate-200 shadow-sm">
+                    <CardHeader>
+                      <CardTitle className="text-base">Next step</CardTitle>
+                      <CardDescription>Tell us your timeline and location—we’ll price it.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex flex-wrap gap-2">
+                      <Button className="rounded-2xl bg-orange-500 hover:bg-orange-600 text-white" onClick={goToContact}>Request Quote</Button>
+                      <Button asChild variant="outline" className="rounded-2xl border-slate-300">
+                        <a href={`tel:${CONTENT.contact.phoneTel}`}><Phone className="h-4 w-4" /> Call</a>
+                      </Button>
+                    </CardContent>
+                  </Card>
                 </div>
               </div>
             </div>
@@ -1155,7 +1015,7 @@ export default function Page() {
                       </DialogDescription>
                       <div className="mt-3 flex flex-wrap gap-2">
                         {(openProject.tags || []).map((t: string) => (
-                          <Badge key={t} className="rounded-2xl bg-slate-900 text-white">{t}</Badge>
+                          <Badge key={t} className="rounded-2xl bg-slate-950 text-white">{t}</Badge>
                         ))}
                       </div>
                     </div>
